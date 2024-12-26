@@ -1,14 +1,13 @@
 import javax.annotation.processing.SupportedSourceVersion;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Random;
+import java.util.*;
 
 public class Maze2D {
+    static int depth = 0;
     int height, width;
     int[][] maze;
     int[][] mazePath;
     int[] mazeBases;
+    boolean[][] visited;
 
     Maze2D(int x, int y) {
         width = x;
@@ -16,11 +15,13 @@ public class Maze2D {
         maze = new int[height][width];
         mazePath = new int[height][width];
         mazeBases = new int[height * width];
+        visited = new boolean[height][width];
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 mazePath[i][j] = -1;
                 maze[i][j] = 0;
                 mazeBases[getCellIndex(i, j)] = -1;
+                visited[i][j] = false;
             }
         }
     }
@@ -42,74 +43,85 @@ public class Maze2D {
         mazeBases[base2] = base1;
     }
 
+    boolean isVisited(int x, int y) {
+        if (x < 0 || x >= maze.length || y < 0 || y >= maze[0].length) {
+            return false;
+        }
+        return (maze[x][y] & 0xF) != 0;
+    }
+
+    boolean visitedAllNeighbours(int x, int y) {
+        return (x <= 0 && !isVisited(x - 1, y)) ||
+                (x > width - 1 && !isVisited(x + 1, y)) ||
+                (y <= 0 && !isVisited(x, y - 1)) ||
+                (y > height - 1 && !isVisited(x, y + 1));
+    }
+
     void generateMazePath(int x, int y, int dir) {
-            if (dir == 15) return;
-            int currentIndex = getCellIndex(x, y);
-            int destinationIndex, tempDir;
-            boolean found;
-            System.out.println("XD" + x + y);
-            Random r = new Random();
-            do {
-                tempDir = (int) Math.pow(2, r.nextInt(4));
-                if((dir & tempDir) != 0) {
-                    found = true;
-                } else {
-                    found = false;
+        System.out.println("Current cell: (" + x + ", " + y + "), dir: " + dir);
+        visited[x][y] = true;
+        if (visitedAllNeighbours(x, y)) {
+            return;
+        }
+
+        int destinationIndex;
+        boolean found;
+
+        List<Integer> directions = Arrays.asList(1, 2, 4, 8);
+        Collections.shuffle(directions);
+
+        for (int tempDir : directions) {
+            if ((dir & tempDir) == 0) {
+                int currentIndex = getCellIndex(x, y);
+                switch (tempDir) {
+                    case 1:
+                        if (x > 0  && !visited[x - 1][y]) { // travel west
+                            depth += 1;
+                            destinationIndex = getCellIndex(x - 1, y);
+                            if (!isVisited(x - 1, y) && (destinationIndex != currentIndex)) {
+                                mergeBases(currentIndex, destinationIndex);
+                                generateMazePath(x - 1, y, dir | tempDir);
+                                maze[x][y] |= (byte) 1;
+                            }
+                        }
+                        break;
+                    case 2:
+                        if (x < width - 1 && !visited[x + 1][y]) {  // travel east
+                            depth += 2;
+                            destinationIndex = getCellIndex(x + 1, y);
+                            if (!isVisited(x + 1, y) && (destinationIndex != currentIndex)) {
+                                mergeBases(currentIndex, destinationIndex);
+                                generateMazePath(x + 1, y, dir | tempDir);
+                                maze[x + 1][y] |= (byte) 1;
+                            }
+                        }
+                        break;
+                    case 4:
+                        if (y > 0&& !visited[x][y - 1]) { // travel south
+                            depth += 4;
+                            destinationIndex = getCellIndex(x, y - 1);
+                            if (!isVisited(x, y - 1) && (destinationIndex != currentIndex)) {
+                                mergeBases(currentIndex, destinationIndex);
+                                generateMazePath(x, y - 1, dir | tempDir);
+                                maze[x][y] |= (byte) 2;
+                            }
+                        }
+                        break;
+                    case 8:
+                        if (y < height - 1 && !visited[x][y + 1]) { // travel north
+                            depth += 8;
+                            destinationIndex = getCellIndex(x, y + 1);
+                            if (!isVisited(x, y + 1) && (destinationIndex != currentIndex)) {
+                                mergeBases(currentIndex, destinationIndex);
+                                generateMazePath(x, y + 1, dir | tempDir);
+                                maze[x][y + 1] |= (byte) 2;
+                            }
+                        }
+                        break;
                 }
-            } while (found == true && dir != 15);
-
-            dir |= tempDir;
-
-            switch (tempDir) {
-                case 1:
-                    if (x > 0) { // travel west
-                        destinationIndex = getCellIndex(x - 1, y);
-                        if (currentIndex != destinationIndex) {
-                            mergeBases(currentIndex, destinationIndex);
-                            generateMazePath(x - 1, y, dir);
-                            maze[x][y] |= 1;
-                            dir = 0;
-                        }
-                    }
-                    break;
-                case 2:
-                    if (x < width - 1) {  // travel east
-                        destinationIndex = getCellIndex(x + 1, y);
-                        if (currentIndex != destinationIndex) {
-                            mergeBases(currentIndex, destinationIndex);
-                            generateMazePath(x + 1, y, dir);
-                            maze[x + 1][y] |= 1;
-                            dir = 0;
-
-                        }
-                    }
-                    break;
-                case 4:
-                    if (y > 0) { // travel south
-                        destinationIndex = getCellIndex(x, y - 1);
-                        if (currentIndex != destinationIndex) {
-                            mergeBases(currentIndex, destinationIndex);
-                            generateMazePath(x, y - 1, dir);
-                            maze[x][y] |= 2;
-                            dir = 0;
-
-                        }
-                    }
-                    break;
-                case 8:
-                    if (y < height - 1) { // travel north
-                        destinationIndex = getCellIndex(x, y + 1);
-                        if (currentIndex != destinationIndex) {
-                            mergeBases(currentIndex, destinationIndex);
-                            generateMazePath(x, y + 1, dir);
-                            maze[x][y + 1] |= 2;
-                            dir = 0;
-
-                        }
-                    }
-                    break;
             }
         }
+    }
 
 
     int[] generateRandomPermutation(int n) {
@@ -130,11 +142,12 @@ public class Maze2D {
     }
 
     public static void main(String[] args) {
-        Maze2D maze = new Maze2D(6, 6);
-        maze.generateMazePath(2,3, 0);
+        Maze2D maze = new Maze2D(8, 8);
+        maze.generateMazePath(1,2, 0);
         for (int[] el : maze.maze) {
             System.out.println(Arrays.toString(el));
         }
+        System.out.println(Arrays.toString(maze.mazeBases));
 
     }
 
