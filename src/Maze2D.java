@@ -3,6 +3,7 @@ import java.util.*;
 
 public class Maze2D {
     static int depth = 0;
+    static boolean debug = false;
     int height, width;
     int[][] maze;
     int[] mazeBases;
@@ -38,18 +39,20 @@ public class Maze2D {
         if ( allVisited ) {
             return;
         }
-        System.out.println("-----------");
-        for (boolean[] row : visited) {
-            System.out.println(Arrays.toString(row));
-        }
-        System.out.println("-----------");
+        if (debug) {
+            System.out.println("-----------");
+            for (boolean[] row : visited) {
+                System.out.println(Arrays.toString(row));
+            }
+            System.out.println("-----------");
 
-        System.out.println("THREAD: " + depth + "\n" + "CELL: (X: " + x + " Y: " + y + ") \n" + allVisited);
-        System.out.println(String.format("%15s\n %10s + %5s \n%15s",
-                y > 0 ? visited[y - 1][x] : "OOB Y+",
-                x > 0 ? visited[y][x - 1] : "OOB X-",
-                x < width - 1 ? visited[y][x + 1] : "OOB X+",
-                y < height - 1 ? visited[y + 1][x] : "OOB Y-"));
+            System.out.println("THREAD: " + depth + "\n" + "CELL: (X: " + x + " Y: " + y + ") \n" + allVisited);
+            System.out.println(String.format("%15s\n %10s + %5s \n%15s",
+                    y > 0 ? visited[y - 1][x] : "OOB Y+",
+                    x > 0 ? visited[y][x - 1] : "OOB X-",
+                    x < width - 1 ? visited[y][x + 1] : "OOB X+",
+                    y < height - 1 ? visited[y + 1][x] : "OOB Y-"));
+        }
         List<Integer> directions = Arrays.asList(1, 2, 4, 8);
         Collections.shuffle(directions);
 
@@ -77,6 +80,7 @@ public class Maze2D {
 
     public static void main(String[] args) {
         Maze2D maze = new Maze2D(4, 4);
+        debug = true;
         maze.generateMazePath(1,2);
 
     }
