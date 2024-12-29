@@ -7,6 +7,7 @@ public class Maze2D {
     int height, width;
     int[][] maze;
     boolean[][] visited;
+    String[][] mazePath;
     List<Integer> order = new ArrayList<>();
 
     Maze2D(int x, int y) {
@@ -14,6 +15,7 @@ public class Maze2D {
         height = y;
         maze = new int[height][width];
         visited = new boolean[height][width];
+        mazePath = new String[height][width];
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -97,10 +99,50 @@ public class Maze2D {
         }
     }
 
+    void printMazePath() {
+        int indexX;
+        int indexY;
+        for (int i = 1; i < order.size(); i++) {
+            if (order.get(i-1) < order.get(i)) {
+                indexX = order.get(i-1) % width;
+                indexY = order.get(i-1) / height;
+                if (maze[indexY][indexX] > 2) {
+                    mazePath[indexY][indexX] = "| |";
+                } else {
+                    mazePath[indexY][indexX] = "-_";
+                }
+            } else {
+                indexX = order.get(i-1) % width;
+                indexY = order.get(i-1) / height;
+                switch (maze[indexY][indexX]) {
+                    case 1:
+                        mazePath[indexY][indexX] = "|-_";
+                        break;
+                    case 2:
+                        mazePath[indexY][indexX] = "-_|";
+                        break;
+                    case 4:
+                        mazePath[indexY][indexX] = "|`|";
+                        break;
+                    case 8:
+                        mazePath[indexY][indexX] = "|_|";
+                        break;
+                }
+            }
+        }
+        for (String[] row : mazePath) {
+            System.out.println(Arrays.toString(row));
+        }
+    }
+
     public static void main(String[] args) {
         Maze2D maze = new Maze2D(4, 4);
         debug = true;
         maze.generateMazePath(1,2);
+        for (int[] row : maze.maze) {
+            System.out.println(Arrays.toString(row));
+        }
+        maze.printMazePath();
     }
 
 }
