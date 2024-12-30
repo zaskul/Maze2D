@@ -99,37 +99,42 @@ public class Maze2D {
         }
     }
 
-    void printMazePath() {
+    void generateWall(int orderIndex1, int orderIndex2) {
         int indexX;
         int indexY;
-        for (int i = 1; i < order.size(); i++) {
-            if (order.get(i-1) < order.get(i)) {
-                indexX = order.get(i-1) % width;
-                indexY = order.get(i-1) / height;
-                if (maze[indexY][indexX] > 2) {
-                    mazePath[indexY][indexX] = "| |";
-                } else {
-                    mazePath[indexY][indexX] = "-_";
-                }
+        if (order.get(orderIndex1) < order.get(orderIndex2)) {
+            indexX = order.get(orderIndex1) % width;
+            indexY = order.get(orderIndex1) / height;
+            if (maze[indexY][indexX] > 2) {
+                mazePath[indexY][indexX] = "| |";
             } else {
-                indexX = order.get(i-1) % width;
-                indexY = order.get(i-1) / height;
-                switch (maze[indexY][indexX]) {
-                    case 1:
-                        mazePath[indexY][indexX] = "|-_";
-                        break;
-                    case 2:
-                        mazePath[indexY][indexX] = "-_|";
-                        break;
-                    case 4:
-                        mazePath[indexY][indexX] = "|`|";
-                        break;
-                    case 8:
-                        mazePath[indexY][indexX] = "|_|";
-                        break;
-                }
+                mazePath[indexY][indexX] = "-_";
+            }
+        } else {
+            indexX = order.get(orderIndex1) % width;
+            indexY = order.get(orderIndex1) / height;
+            switch (maze[indexY][indexX]) {
+                case 1:
+                    mazePath[indexY][indexX] = "|-_";
+                    break;
+                case 2:
+                    mazePath[indexY][indexX] = "-_|";
+                    break;
+                case 4:
+                    mazePath[indexY][indexX] = "|`|";
+                    break;
+                case 8:
+                    mazePath[indexY][indexX] = "|_|";
+                    break;
             }
         }
+    }
+
+    void printMazePath() {
+        for (int i = 1; i < order.size(); i++) {
+            generateWall(i-1, i);
+        }
+        generateWall(order.size() - 1, order.size() - 1);
         for (String[] row : mazePath) {
             System.out.println(Arrays.toString(row));
         }
