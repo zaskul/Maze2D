@@ -1,50 +1,64 @@
-import javax.annotation.processing.SupportedSourceVersion;
+
 import java.util.*;
 
 public class Maze2D {
-    static int depth = 0;
     static boolean debug = false;
     int height, width;
     int[][] maze;
     boolean[][] visited;
-    String[][] mazePath;
-    List<Integer> order = new ArrayList<>();
+    int[] base;
 
     Maze2D(int x, int y) {
         width = x;
         height = y;
         maze = new int[height][width];
         visited = new boolean[height][width];
-        mazePath = new String[height][width];
-
+        base = new int[height * width];
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 maze[i][j] = 0;
                 visited[i][j] = false;
+                base[width * i + j] = -1;
             }
         }
     }
 
+    int cellIndex(int y, int x) {
+        return width * y + x;
+    }
+
+    int baseCell(int index) {
+        while (base[index] >= 0) {
+            index = base[index];
+        }
+        return index;
+    }
+
+    void merge(int index1, int index2) {
+        int base1 = baseCell(index1);
+        int base2 = baseCell(index2);
+        base[base2] = base1;
+    }
 
     void generateMazePath(int x, int y) {
+    int indexSrc, indexDest;
+    visited[y][x] = true;
 
+    // check if all neighbouring cells are already visited
+    // if true go back to previous cell
+    boolean allVisited =
+            (x > 0 ? visited[y][x - 1] : true ) && // WEST
+            (x < width - 1 ? visited[y][x + 1] : true) && // EAST
+            (y > 0 ? visited[y - 1][x] : true) && // NORTH
+            (y < height - 1 ? visited[y + 1][x] : true); // SOUTH
 
-        // check if all neighbouring cells are already visited
-        // if true go back to previous cell
-
-        boolean allVisited =
-                (x > 0 ? visited[y][x - 1] : true ) && // WEST
-                (x < width - 1 ? visited[y][x + 1] : true) && // EAST
-                (y > 0 ? visited[y - 1][x] : true) && // NORTH
-                (y < height - 1 ? visited[y + 1][x] : true); // SOUTH
-
-        if (debug) {
+    if (debug) {
             System.out.println("CELL: (X: " + x + " Y: " + y + ") \n" + allVisited);
-            System.out.println(String.format("%15s\n %10s + %5s \n%15s",
+            System.out.printf("%15s\n %10s + %5s \n%15s%n",
                     y > 0 ? visited[y - 1][x] : "OOB Y+",
                     x > 0 ? visited[y][x - 1] : "OOB X-",
                     x < width - 1 ? visited[y][x + 1] : "OOB X+",
-                    y < height - 1 ? visited[y + 1][x] : "OOB Y-"));
+                    y < height - 1 ? visited[y + 1][x] : "OOB Y-");
             System.out.println("-----------");
 //            for (int[] row : maze) {
 //                System.out.println(Arrays.toString(row));
@@ -53,7 +67,6 @@ public class Maze2D {
                 System.out.println(Arrays.toString(row));
             }
             System.out.println("----------------------------------");
-            System.out.println(order);
         }
 
         if ( allVisited ) {
@@ -63,91 +76,53 @@ public class Maze2D {
         List<Integer> directions = Arrays.asList(1, 2, 4, 8);
         Collections.shuffle(directions);
 
+        indexSrc = cellIndex(y, x);
+
         for (int tempDir : directions) {
             if (tempDir == 1 && x > 0) { // WEST
-                if (maze[y][x - 1] == 0) {
-                    visited[y][x - 1] = true;
-                    maze[y][x - 1] |= tempDir;
-                    order.add(width * y + (x - 1));
+                indexDest = cellIndex(y, x - 1);
+                if (baseCell(indexDest) != baseCell(indexSrc)) {
+                    merge(indexSrc, indexDest);
+                    maze[y][x] |= 1;
                 }
                 generateMazePath(x - 1, y);
             }
             if (tempDir == 2 && x < width - 1) { // EAST
-                if (maze[y][x + 1] == 0) {
-                    visited[y][x + 1] = true;
-                    maze[y][x + 1] |= tempDir;
-                    order.add(width * y + (x + 1));
+                indexDest = cellIndex(y, x + 1);
+                if (baseCell(indexDest) != baseCell(indexSrc)) {
+                    merge(indexSrc, indexDest);
+                    maze[y][x] |= 1;
                 }
                 generateMazePath(x + 1, y);
             }
             if (tempDir == 4 && y > 0) { // NORTH
-                if (maze[y - 1][x] == 0) {
-                    visited[y - 1][x] = true;
-                    maze[y - 1][x] |= tempDir;
-                    order.add(width * (y - 1) + x);
+                indexDest = cellIndex(y - 1, x);
+                if (baseCell(indexDest) != baseCell(indexSrc)) {
+                    merge(indexSrc, indexDest);
+                    maze[y][x] |= 2;
                 }
                 generateMazePath(x, y - 1);
             }
             if (tempDir == 8 && y < height - 1) { // SOUTH
-                if (maze[y + 1][x] == 0) {
-                    visited[y + 1][x] = true;
-                    maze[y + 1][x] |= tempDir;
-                    order.add(width * (y + 1) + x);
+                indexDest = cellIndex(y + 1, x);
+                if (baseCell(indexDest) != baseCell(indexSrc)) {
+                    merge(indexSrc, indexDest);
+                    maze[y][x] |= 2;
                 }
                 generateMazePath(x, y + 1);
             }
         }
     }
 
-    void generateWall(int orderIndex1, int orderIndex2) {
-        int indexX;
-        int indexY;
-        if (order.get(orderIndex1) < order.get(orderIndex2)) {
-            indexX = order.get(orderIndex1) % width;
-            indexY = order.get(orderIndex1) / height;
-            if (maze[indexY][indexX] > 2) {
-                mazePath[indexY][indexX] = "| |";
-            } else {
-                mazePath[indexY][indexX] = "-_";
-            }
-        } else {
-            indexX = order.get(orderIndex1) % width;
-            indexY = order.get(orderIndex1) / height;
-            switch (maze[indexY][indexX]) {
-                case 1:
-                    mazePath[indexY][indexX] = "|-_";
-                    break;
-                case 2:
-                    mazePath[indexY][indexX] = "-_|";
-                    break;
-                case 4:
-                    mazePath[indexY][indexX] = "|`|";
-                    break;
-                case 8:
-                    mazePath[indexY][indexX] = "|_|";
-                    break;
-            }
-        }
-    }
-
-    void printMazePath() {
-        for (int i = 1; i < order.size(); i++) {
-            generateWall(i-1, i);
-        }
-        generateWall(order.size() - 1, order.size() - 1);
-        for (String[] row : mazePath) {
-            System.out.println(Arrays.toString(row));
-        }
-    }
-
     public static void main(String[] args) {
-        Maze2D maze = new Maze2D(4, 4);
+        Maze2D maze = new Maze2D(8, 8);
         debug = true;
         maze.generateMazePath(1,2);
         for (int[] row : maze.maze) {
             System.out.println(Arrays.toString(row));
         }
-        maze.printMazePath();
+//        maze.printMazePath();
+        System.out.println(Arrays.toString(maze.base));
     }
 
 }
