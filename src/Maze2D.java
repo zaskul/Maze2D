@@ -22,11 +22,13 @@ public class Maze2D {
             }
         }
     }
-
+    // used to store the cell index info as one array
     int cellIndex(int y, int x) {
         return width * y + x;
     }
 
+    // traces back to the origin of the cell
+    // makes sure that the algorithm doesn't go through walls
     int baseCell(int index) {
         while (base[index] >= 0) {
             index = base[index];
@@ -34,6 +36,8 @@ public class Maze2D {
         return index;
     }
 
+    // if the cells have the same base they are in the same chain
+    // therefore they can be merged together into one chain
     void merge(int index1, int index2) {
         int base1 = baseCell(index1);
         int base2 = baseCell(index2);
@@ -47,10 +51,10 @@ public class Maze2D {
     // check if all neighbouring cells are already visited
     // if true go back to previous cell
     boolean allVisited =
-            (x > 0 ? visited[y][x - 1] : true ) && // WEST
-            (x < width - 1 ? visited[y][x + 1] : true) && // EAST
-            (y > 0 ? visited[y - 1][x] : true) && // NORTH
-            (y < height - 1 ? visited[y + 1][x] : true); // SOUTH
+            (x <= 0 || visited[y][x - 1]) && // WEST
+            (x >= width - 1 || visited[y][x + 1]) && // EAST
+            (y <= 0 || visited[y - 1][x]) && // NORTH
+            (y >= height - 1 || visited[y + 1][x]); // SOUTH
 
     if (debug) {
             System.out.println("CELL: (X: " + x + " Y: " + y + ") \n" + allVisited);
