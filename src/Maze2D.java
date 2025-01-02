@@ -118,8 +118,36 @@ public class Maze2D {
         }
     }
 
+    void drawMaze() {
+        int[][] mazeWalls = new int[(height * 2) + 1][(width * 2) + 1];
+        int wallX = 1;
+        int wallY = 1;
+
+        for (int i = 0; i < height; i++) {
+            wallX = 1;
+            for (int j = 0; j < width; j++) {
+                if ((maze[i][j] & 1) == 0) { // horizontal
+                    mazeWalls[wallY][wallX - 1] = 1;
+                    mazeWalls[wallY][wallX] = 1;
+                    mazeWalls[wallY][wallX + 1] = 1;
+                }
+                if ((maze[i][j] & 2) == 0) { // vertical
+                    mazeWalls[wallY - 1][wallX] = 1;
+                    mazeWalls[wallY][wallX] = 1;
+                    mazeWalls[wallY + 1][wallX] = 1;
+                }
+                wallX+=2;
+            }
+            wallY+=2;
+        }
+
+        for (int[] row : mazeWalls) {
+            System.out.println(Arrays.toString(row));
+        }
+    }
+
     public static void main(String[] args) {
-        Maze2D maze = new Maze2D(8, 8);
+        Maze2D maze = new Maze2D(3, 3);
         debug = true;
         maze.generateMazePath(1,2);
         for (int[] row : maze.maze) {
@@ -127,6 +155,8 @@ public class Maze2D {
         }
 //        maze.printMazePath();
         System.out.println(Arrays.toString(maze.base));
+
+        maze.drawMaze();
     }
 
 }
