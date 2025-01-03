@@ -121,24 +121,36 @@ public class Maze2D {
     void drawMaze() {
         int[][] mazeWalls = new int[(height * 2) + 1][(width * 2) + 1];
         int wallX = 1;
-        int wallY = 1;
+        int wallY = 0;
 
         for (int i = 0; i < height; i++) {
-            wallX = 1;
             for (int j = 0; j < width; j++) {
-                if ((maze[i][j] & 1) == 0) { // horizontal
+                if ((maze[i][j] & (byte)2) == 0) { // travel south/north, vertical line
                     mazeWalls[wallY][wallX - 1] = 1;
                     mazeWalls[wallY][wallX] = 1;
                     mazeWalls[wallY][wallX + 1] = 1;
+
                 }
-                if ((maze[i][j] & 2) == 0) { // vertical
-                    mazeWalls[wallY - 1][wallX] = 1;
-                    mazeWalls[wallY][wallX] = 1;
-                    mazeWalls[wallY + 1][wallX] = 1;
+                if ((maze[i][j] & (byte)1) == 0) { // travel east/west, horizontal line
+                    mazeWalls[wallY][wallX + 1] = 1;
+                    mazeWalls[wallY + 1][wallX + 1] = 1;
+                    mazeWalls[wallY + 2][wallX + 1] = 1;
                 }
                 wallX+=2;
             }
             wallY+=2;
+        }
+
+        // left/right border
+        for (int i = 0; i < (height * 2) + 1; i++) {
+            mazeWalls[i][0] = 1;
+            mazeWalls[i][(height * 2)] = 1;
+        }
+
+        // top/bottom border
+        for (int i = 0; i < (width * 2) + 1; i++) {
+            mazeWalls[0][i] = 1;
+            mazeWalls[(width * 2)][i] = 1;
         }
 
         for (int[] row : mazeWalls) {
@@ -150,13 +162,11 @@ public class Maze2D {
         Maze2D maze = new Maze2D(3, 3);
         debug = true;
         maze.generateMazePath(1,2);
+
+        maze.drawMaze();
         for (int[] row : maze.maze) {
             System.out.println(Arrays.toString(row));
         }
-//        maze.printMazePath();
-        System.out.println(Arrays.toString(maze.base));
-
-        maze.drawMaze();
     }
 
 }
