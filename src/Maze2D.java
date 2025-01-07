@@ -87,7 +87,7 @@ public class Maze2D {
                 indexDest = cellIndex(y, x - 1);
                 if (baseCell(indexDest) != baseCell(indexSrc)) {
                     merge(indexSrc, indexDest);
-                    maze[y][x] |= 1;
+                    maze[y][x] |= 2;
                 }
                 generateMazePath(x - 1, y);
             }
@@ -95,7 +95,7 @@ public class Maze2D {
                 indexDest = cellIndex(y, x + 1);
                 if (baseCell(indexDest) != baseCell(indexSrc)) {
                     merge(indexSrc, indexDest);
-                    maze[y][x] |= 1;
+                    maze[y][x] |= 2;
                 }
                 generateMazePath(x + 1, y);
             }
@@ -103,7 +103,7 @@ public class Maze2D {
                 indexDest = cellIndex(y - 1, x);
                 if (baseCell(indexDest) != baseCell(indexSrc)) {
                     merge(indexSrc, indexDest);
-                    maze[y][x] |= 2;
+                    maze[y][x] |= 1;
                 }
                 generateMazePath(x, y - 1);
             }
@@ -111,7 +111,7 @@ public class Maze2D {
                 indexDest = cellIndex(y + 1, x);
                 if (baseCell(indexDest) != baseCell(indexSrc)) {
                     merge(indexSrc, indexDest);
-                    maze[y][x] |= 2;
+                    maze[y][x] |= 1;
                 }
                 generateMazePath(x, y + 1);
             }
@@ -126,18 +126,18 @@ public class Maze2D {
         for (int i = 0; i < height; i++) {
             wallX = 1;
             for (int j = 0; j < width; j++) {
-                if ((maze[i][j] & (byte)2) == 0) { // travel south/north, vertical line
+                if ((maze[i][j] & (byte) 1) == 0) { // travel south/north, vertical line
                     mazeWalls[wallY][wallX - 1] = 1;
                     mazeWalls[wallY][wallX] = 1;
                     mazeWalls[wallY][wallX + 1] = 1;
-                    mazeWalls[wallY + 1][wallX - 1] = 0;
+                    mazeWalls[wallY][wallX] = 0;
 
                 }
-                if ((maze[i][j] & (byte)1) == 0) { // travel east/west, horizontal line
+                if ((maze[i][j] & (byte) 2) == 0) { // travel east/west, horizontal line
                     mazeWalls[wallY][wallX + 1] = 1;
                     mazeWalls[wallY + 1][wallX + 1] = 1;
                     mazeWalls[wallY + 2][wallX + 1] = 1;
-                    mazeWalls[wallY][wallX] = 0;
+                    mazeWalls[wallY + 1][wallX - 1] = 0;
 
                 }
                 wallX+=2;
@@ -163,7 +163,7 @@ public class Maze2D {
     }
 
     public static void main(String[] args) {
-        Maze2D maze = new Maze2D(6, 6);
+        Maze2D maze = new Maze2D(5, 5);
         debug = true;
         maze.generateMazePath(1,2);
 
