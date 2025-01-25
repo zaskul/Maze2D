@@ -121,45 +121,37 @@ public class Maze2D {
     void drawMaze() {
         int[][] mazeWalls = new int[(height * 2) + 1][(width * 2) + 1];
         String[][] mazeWallsColored = new String[(height * 2) + 1][(width * 2) + 1];
-        int wallX;
-        int wallY = 0;
         String redBackground = "\u001B[41m";
         String blueBackground = "\u001B[44m";
         String greenBackground = "\u001B[42m";
         String whiteBackground = "\u001B[47m";
         String reset = "\u001B[0m";
-
-        for (int i = 0; i < height; i++) {
-            wallX = 1;
-            for (int j = 0; j < width; j++) {
-                if ((maze[i][j] & (byte) 1) == 0) { // travel south/north, vertical line
-                    mazeWalls[wallY][wallX - 1] = 1;
-                    mazeWalls[wallY][wallX] = 1;
-                    mazeWalls[wallY][wallX + 1] = 1;
-
-                    mazeWallsColored[wallY][wallX - 1] = redBackground;
-                    mazeWallsColored[wallY][wallX] = redBackground;
-                    mazeWallsColored[wallY][wallX + 1] = redBackground;
-//                    mazeWalls[wallY][wallX] = 0;
-
+        int verticalIndex;
+        for (int i = 0; i < width; i++) {
+            verticalIndex = 0;
+            for (int j = 0; j < height; j++) {
+                if ((maze[i][j] & (byte) 1) == 0) {
+                    mazeWallsColored[(i * 2)][(j * 2) + 1] = greenBackground;
+                    mazeWallsColored[(i * 2)][(j * 2)] = greenBackground;
+                    mazeWallsColored[(i * 2)][(j * 2) + 2] = greenBackground;
                 }
-                if ((maze[i][j] & (byte) 2) == 0) { // travel east/west, horizontal line
-                    mazeWalls[wallY][wallX + 1] = 1;
-                    mazeWalls[wallY + 1][wallX + 1] = 1;
-                    mazeWalls[wallY + 2][wallX + 1] = 1;
 
-                    mazeWallsColored[wallY][wallX + 1] = blueBackground;
-                    mazeWallsColored[wallY + 1][wallX + 1] = blueBackground;
-                    mazeWallsColored[wallY + 2][wallX + 1] = blueBackground;
-//                    mazeWalls[wallY + 1][wallX - 1] = 0;
-
+                if (((maze[i][j] & (byte) 2) == 0)) {
+                    mazeWallsColored[(i * 2)][verticalIndex] = greenBackground;
+                    mazeWallsColored[(i * 2) + 1][verticalIndex] = greenBackground;
+                    mazeWallsColored[(i * 2) + 2][verticalIndex] = greenBackground;
                 }
-                wallX+=2;
+                verticalIndex += 2;
             }
-            wallY+=2;
         }
 
-        // left/right border
+//        for (int i = 0; i < width; i++) {
+//            for (int j = 0; j < height; j++) {
+//                mazeWallsColored[(i * 2) + 1][(j * 2) + 1] = redBackground;
+//            }
+//        }
+//
+        //left/right border
         for (int i = 0; i < (height * 2) + 1; i++) {
             mazeWalls[i][0] = 1;
             mazeWalls[i][(height * 2)] = 1;
@@ -169,7 +161,7 @@ public class Maze2D {
 
         }
 
-        // top/bottom border
+        //top/bottom border
         for (int i = 0; i < (width * 2) + 1; i++) {
             mazeWalls[0][i] = 1;
             mazeWalls[(width * 2)][i] = 1;
@@ -177,19 +169,17 @@ public class Maze2D {
             mazeWallsColored[0][i] = greenBackground;
             mazeWallsColored[(width * 2)][i] = greenBackground;
         }
-
-        for (int[] row : mazeWalls) {
-            System.out.println(Arrays.toString(row));
-        }
+//
+//        for (int[] row : mazeWalls) {
+//            System.out.println(Arrays.toString(row));
+//        }
 
         for (String[] row : mazeWallsColored) {
             for (String col : row) {
                 if (col == null) {
-                    System.out.print(whiteBackground + " " + reset);
-                    System.out.print(whiteBackground + " " + reset);
+                    System.out.print(whiteBackground + "   " + reset);
                 } else {
-                    System.out.print(col + " " + reset);
-                    System.out.print(col + " " + reset);
+                    System.out.print(col + "   " + reset);
                 }
             }
             System.out.println();
@@ -197,9 +187,9 @@ public class Maze2D {
     }
 
     public static void main(String[] args) {
-        Maze2D maze = new Maze2D(5, 5);
-        debug = true;
-        maze.generateMazePath(1,2);
+        Maze2D maze = new Maze2D(10, 10);
+        debug = false;
+//        maze.generateMazePath(1,2);
 //        maze.maze = new int[][] {
 //                {0,2,0,2,2},
 //                {1,2,3,1,1},
@@ -207,16 +197,33 @@ public class Maze2D {
 //                {0,2,3,1,1},
 //                {1,2,2,3,1}
 //        };
+//        maze.maze = new int[][] {
+//                {0, 2, 2, 2, 2},
+//                {1, 1, 2, 0, 2},
+//                {1, 2, 1, 3, 1},
+//                {1, 0, 2, 2, 3},
+//                {1, 1, 0, 2, 3}
+//        };
         maze.maze = new int[][] {
-                {0,1,1,0,1},
-                {2,2,2,2,2},
-                {0,3,0,3,2},
-                {2,1,1,1,3},
-                {2,1,1,1,1}
+                {0, 2, 2, 2, 2, 2, 2, 2, 2, 0},
+                {1, 0, 2, 2, 1, 1, 0, 2, 1, 1},
+                {0, 3, 0, 3, 2, 3, 1, 1, 3, 3},
+                {1, 2, 2, 2, 2, 1, 0, 2, 2, 2},
+                {0, 2, 2, 2, 1, 1, 1, 0, 2, 1},
+                {1, 0, 0, 3, 1, 2, 2, 3, 0, 3},
+                {1, 1, 3, 2, 2, 1, 0, 2, 3, 0},
+                {1, 0, 2, 2, 1, 3, 1, 0, 2, 3},
+                {1, 1, 0, 1, 2, 2, 3, 0, 2, 1},
+                {1, 3, 3, 2, 2, 2, 2, 3, 1, 3}
         };
+//        maze.generateMazePath(2, 1);
         maze.drawMaze();
-        for (int[] row : maze.maze) {
-            System.out.println(Arrays.toString(row));
+        for (int i = 0; i < maze.height; i++) {
+            System.out.print("[");
+            for (int j = 0; j < maze.width; j++) {
+                System.out.print(maze.maze[i][j] + ", ");
+            }
+            System.out.print("]\n");
         }
     }
 
