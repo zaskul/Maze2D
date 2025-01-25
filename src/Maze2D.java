@@ -95,7 +95,7 @@ public class Maze2D {
                 indexDest = cellIndex(y, x + 1);
                 if (baseCell(indexDest) != baseCell(indexSrc)) {
                     merge(indexSrc, indexDest);
-                    maze[y][x] |= 2;
+                    maze[y][x + 1] |= 2;
                 }
                 generateMazePath(x + 1, y);
             }
@@ -111,7 +111,7 @@ public class Maze2D {
                 indexDest = cellIndex(y + 1, x);
                 if (baseCell(indexDest) != baseCell(indexSrc)) {
                     merge(indexSrc, indexDest);
-                    maze[y][x] |= 1;
+                    maze[y + 1][x] |= 1;
                 }
                 generateMazePath(x, y + 1);
             }
@@ -204,19 +204,19 @@ public class Maze2D {
 //                {1, 0, 2, 2, 3},
 //                {1, 1, 0, 2, 3}
 //        };
-        maze.maze = new int[][] {
-                {0, 2, 2, 2, 2, 2, 2, 2, 2, 0},
-                {1, 0, 2, 2, 1, 1, 0, 2, 1, 1},
-                {0, 3, 0, 3, 2, 3, 1, 1, 3, 3},
-                {1, 2, 2, 2, 2, 1, 0, 2, 2, 2},
-                {0, 2, 2, 2, 1, 1, 1, 0, 2, 1},
-                {1, 0, 0, 3, 1, 2, 2, 3, 0, 3},
-                {1, 1, 3, 2, 2, 1, 0, 2, 3, 0},
-                {1, 0, 2, 2, 1, 3, 1, 0, 2, 3},
-                {1, 1, 0, 1, 2, 2, 3, 0, 2, 1},
-                {1, 3, 3, 2, 2, 2, 2, 3, 1, 3}
-        };
-//        maze.generateMazePath(2, 1);
+//        maze.maze = new int[][] {
+//                {0, 2, 2, 2, 2, 2, 2, 2, 2, 0},
+//                {1, 0, 2, 2, 1, 1, 0, 2, 1, 1},
+//                {0, 3, 0, 3, 2, 3, 1, 1, 3, 3},
+//                {1, 2, 2, 2, 2, 1, 0, 2, 2, 2},
+//                {0, 2, 2, 2, 1, 1, 1, 0, 2, 1},
+//                {1, 0, 0, 3, 1, 2, 2, 3, 0, 3},
+//                {1, 1, 3, 2, 2, 1, 0, 2, 3, 0},
+//                {1, 0, 2, 2, 1, 3, 1, 0, 2, 3},
+//                {1, 1, 0, 1, 2, 2, 3, 0, 2, 1},
+//                {1, 3, 3, 2, 2, 2, 2, 3, 1, 3}
+//        };
+        maze.generateMazePath(2, 1);
         maze.drawMaze();
         for (int i = 0; i < maze.height; i++) {
             System.out.print("[");
