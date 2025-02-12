@@ -49,7 +49,7 @@ public class Maze2D {
         }
     }
 
-    void generateMazePath(int x, int y) {
+    void generateMazePath(int x, int y, Random seed) {
         int indexSrc, indexDest;
         visited[y][x] = true;
 
@@ -65,7 +65,7 @@ public class Maze2D {
 
         // randomize maze traverse order
         List<Integer> directions = Arrays.asList(1, 2, 4, 8);
-        Collections.shuffle(directions);
+        Collections.shuffle(directions, seed);
 
         // traverse through the maze
         indexSrc = cellIndex(y, x);
@@ -77,7 +77,7 @@ public class Maze2D {
                     mergeBases(indexSrc, indexDest);
                     maze[y][x] |= 2;
                 }
-                generateMazePath(x - 1, y);
+                generateMazePath(x - 1, y, seed);
             }
 
             // EAST
@@ -87,7 +87,7 @@ public class Maze2D {
                     mergeBases(indexSrc, indexDest);
                     maze[y][x + 1] |= 2;
                 }
-                generateMazePath(x + 1, y);
+                generateMazePath(x + 1, y, seed);
             }
 
             // NORTH
@@ -97,7 +97,7 @@ public class Maze2D {
                     mergeBases(indexSrc, indexDest);
                     maze[y][x] |= 1;
                 }
-                generateMazePath(x, y - 1);
+                generateMazePath(x, y - 1, seed);
             }
 
             // SOUTH
@@ -107,15 +107,15 @@ public class Maze2D {
                     mergeBases(indexSrc, indexDest);
                     maze[y + 1][x] |= 1;
                 }
-                generateMazePath(x, y + 1);
+                generateMazePath(x, y + 1, seed);
             }
         }
     }
 
     void drawMaze() {
         String[][] mazeWallsColored = new String[(height * 2) + 1][(width * 2) + 1];
-        String wallBackground = "\u001B[42m";
-        String pathBackground = "\u001B[47m";
+        String wallBackground = "\u001B[48;5;0m";
+        String pathBackground = "\u001B[48;5;15m";
         String reset = "\u001B[0m";
 
         // place walls based on the maze data
@@ -160,7 +160,8 @@ public class Maze2D {
 
     public static void main(String[] args) {
         Maze2D maze = new Maze2D(15, 15);
-        maze.generateMazePath(2, 1);
+        Random seed = new Random(5);
+        maze.generateMazePath(2, 1, seed);
         maze.drawMaze();
         maze.inspectMazeData();
     }
