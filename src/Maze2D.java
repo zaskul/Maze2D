@@ -163,6 +163,5 @@ public class Maze2D {
         Random seed = new Random(5);
         maze.generateMazePath(2, 1, seed);
         maze.drawMaze();
-        maze.inspectMazeData();
     }
 }
